@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" href="/form/form.css">
+    <script src="/form/form.js"></script>
+
+    <title>Registre-se</title>
+</head>
+<body>
+    <h1>CondoMar</h1>
+    <div class="box">
+        <form action="/enviar-formulario" method="POST" onsubmit="redirecionarParaLogin()">
+            <fieldset>
+                <h2>Registre-se</h2>
+                <br>
+                <div class="inputBox">
+                    <label for="nome" class="labelInput">Nome:</label>
+                    <input type="text" name="nome" id="nome" class="inputUser" required>
+                </div>
+                <br>
+                <div class="inputBox">
+                    <label for="email" class="labelInput">E-mail:</label>
+                    <input type="text" name="email" id="email" class="inputUser" required>
+                </div>
+                <br>
+                <div class="inputBox">
+                    <label for="senha" class="labelInput">Senha:</label>
+                    <input type="password" name="senha" id="senha" class="inputUser" required>
+                </div>
+                <br>
+                <div class="inputBox">
+                    <label for="telefone" class="labelInput">Telefone:</label>
+                    <input type="tel" name="telefone" id="telefone" class="inputUser" required>
+                </div>
+                <br>
+                <p>Sexo:</p>
+                <input type="radio" id="masculino" name="genero" value="masculino" required>
+                <label for="masculino">Masculino:</label>
+                <br>
+                <input type="radio" id="feminino" name="genero" value="feminino" required>
+                <label for="feminino">Feminino:</label>
+                <br>
+                <input type="radio" id="outro" name="genero" value="outro" required>
+                <label for="outro">Outro:</label>
+                <br>
+                <br>
+                <label for="data_nascimento"><b>Data de Nascimento</b></label>
+                <input type="date" name="data_nascimento" id="data_nascimento" required>
+                <br>
+                <br>
+                <input type="submit" name="submit" id="submit" value="Enviar">
+            </fieldset>
+        </form>
+    </div>
+</body>
+</html>

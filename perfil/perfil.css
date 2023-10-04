@@ -1,0 +1,80 @@
+*{
+    border: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body{
+    background-color: #00a2ff;
+}
+
+header, nav, aside, section, footer{
+    font-family: aril;
+    font-size: 10px;
+    border-radius: 10px;
+    text-align: center;
+}
+
+span{
+    color: blue;
+}
+
+header{
+    background-color: rgb(255, 255, 255);
+    min-height: 60px;
+    min-width: 960px;
+}
+
+nav{
+    background-color: red;
+    height:100dvw;
+    width: 20%;
+    float: left;
+}
+
+aside{
+    background-color: deeppink;
+    height:100dvw;
+    width: 20%;
+    float: right;
+
+}
+
+section{
+    background-color: gold;
+    height: 100dvw;
+    width: 60%;
+    float: left;
+}
+
+#casa{
+
+    height: 30dvw;
+    margin-right: 1dvw;
+    margin-top: 2vw;
+    background-color: black;
+    border-radius: 5px;
+}
+
+#menutop{
+    font-size: 20px;
+    margin-left: -150px;
+}
+
+#pesquisa{
+    color: white;
+    background-color: rgba(0, 0, 0, 0.6);
+    padding: 10px;
+    border-radius: 15px;
+}
+
+/*footer{
+    background-color: green;
+    height: 50px;
+    width: 960px;
+    margin-top: 0px;
+    margin-left: 0px;
+    margin-right: 0px;
+    margin-bottom: 15px;
+    float: left;
+}

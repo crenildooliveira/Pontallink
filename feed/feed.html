@@ -2,8 +2,12 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
+    
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
     <link rel="stylesheet" href="/feed/feed.css"> <!-- Lembre-se de adicionar o link para o seu arquivo CSS -->
+    <script src="/feed/feed.js"></script>
+    
     <title>Pontallink</title>
 </head>
 <body>
@@ -38,6 +42,8 @@
         <nav>
             <!-- Conteúdo da navegação -->
             <span>Esquerda (nav)</span>
+
+            <button type="button" id="perfilButton" onclick="redirecionarParaPerfil()">Perfil</button>
             <!-- Casa do personagem -->
             <div id="casa"></div>
         </nav>

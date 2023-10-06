@@ -1,0 +1,18 @@
+/* Estilos para a caixa de mensagem */
+.caixa-mensagem {
+    border: 1px solid #ccc;
+    padding: 10px;
+    margin-bottom: 10px;
+    background-color: #fff;
+}
+
+/* Estilos para a pré-visualização da imagem */
+#preview-imagem {
+    margin-top: 10px; /* Espaçamento entre a caixa de texto e a pré-visualização da imagem */
+}
+
+#preview-imagem img,
+#preview-video video {
+    max-width: 100%;
+    max-height: 200px; /* Altura máxima desejada para ambas imagens e vídeos */
+}

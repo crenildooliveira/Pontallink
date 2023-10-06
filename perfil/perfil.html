@@ -1,46 +1,66 @@
-<<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
+    
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <link rel="stylesheet" href="/feed/feed.css">
+    
+    <link rel="stylesheet" href="/feed/feed.css"> <!-- Lembre-se de adicionar o link para o seu arquivo CSS -->
+    <script src="/feed/feed.js"></script>
+    
     <title>Pontallink</title>
 </head>
 <body>
 
     <header>
-        <!--Cabeçalho-->
-        <span>Cabeçalho (hearder)</span>
-        <div id="menutop">
-            <label for="pesquisa" class="labelInput">Pesquisar:</label>
-            <input type="text" name="pesquisa" id="pesquisa" class="inputUser">
+        <!-- Conteúdo do cabeçalho centralizado -->
+        <div id="header-content">
+            <div id="logo">
+                <img src="/imgs/logo.webp" alt="Logo da Rede Social">
+            </div>
+            <div id="search">
+                <label for="pesquisa" class="labelInput">Pesquisar:</label>
+                <input type="text" name="pesquisa" id="pesquisa" class="inputUser">
+            </div>
+
+            <div id="buttons">
+                <div id="notifications">
+                    <button id="notifications-button">
+                        <img src="/imgs/notificacoes.png" alt="Notificações">
+                    </button>
+                </div>
+                <div id="settings">
+                    <button id="settings-button">
+                        <img src="/imgs/config.png" alt="Configurações">
+                    </button>
+                </div>
+            </div>
         </div>
-
-        <div id="notificacao"></div>
-
     </header>
 
-    <nav>
-        <!--Caixa lateral Esquerda-->
-        <span> Esquerda (nav)</span>
+    <div class="content-wrapper">
+        <nav>
+            <!-- Conteúdo da navegação -->
+            <span>Esquerda (nav)</span>
 
-        <!--Casa do personagem-->
-        <div id="casa">
+            <!-- Casa do personagem -->
+            <div id="casa"></div>
+        </nav>
 
-        </div>
-    </nav>
+        <section>
 
-    <section>
-        <!--Caixa meio Feed-->
-        <span>Meio (section)</span>
-    </section>
+            <!-- Conteúdo da seção principal -->
+            <span>Meio (section)</span>
 
-    <aside>
-        <!--Caixalateral Direita-->
-        <span>Direita (aside)</span>
-    </aside>
+            <iframe src="/publicacao/publicacao.html" frameborder="0" width="100%" height="600"></iframe>
 
+        </section>
+
+        <aside>
+            <!-- Conteúdo da barra lateral -->
+            <span>Direita (aside)</span>
+        </aside>
+    </div>
 
 </body>
 </html>

@@ -1,0 +1,29 @@
+<!-- publicacao.html -->
+
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" href="/publicacao/publicacao.css">
+    
+    <title>Publicação</title>
+</head>
+<body>
+    <h1>Faça sua publicação</h1>
+    <form id="formulario" method="post" enctype="multipart/form-data">
+        <div class="caixa-mensagem">
+            <textarea id="texto" name="texto" placeholder="Digite seu texto aqui..."></textarea>
+            <div id="preview-imagem"></div>
+            <div id="preview-video"></div>
+        </div>
+        <input type="file" id="imagem" name="imagem" accept="image/*">
+        <input type="file" id="video" name="video" accept="video/*">
+
+        <button type="button" id="enviar" onclick="enviarMensagem()">Enviar</button>
+
+    </form>
+    <script src="/publicacao/publicacao.js"></script>
+</body>
+</html>

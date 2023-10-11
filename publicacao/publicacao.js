@@ -45,7 +45,7 @@ document.getElementById('video').addEventListener('change', function (event) {
 });
 
 // Modifique a função enviarMensagem() para lidar com o envio de arquivos usando Multipart
-function enviarMensagem() {
+function enviarPublicacao() {
   const texto = document.getElementById('texto').value;
   const imagem = document.getElementById('imagem').files[0];
   const video = document.getElementById('video').files[0];
@@ -55,7 +55,7 @@ function enviarMensagem() {
   formData.append('imagem', imagem);
   formData.append('video', video);
 
-  fetch('/enviar-mensagem', {
+  fetch('/enviar-publicacao', {
       method: 'POST',
       body: formData,
   })

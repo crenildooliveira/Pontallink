@@ -3,8 +3,6 @@ module.exports = (google) => {
   const subpastaImagesId = '13bnECuYzifyM3wHyyQEzjG_O4rttw7kD'; // ID da subpasta "images" no Google Drive
   const subpastaVideosId = '1roDbUKgmLo5cBn0wVn6sd6y56fopSlqJ'; // ID da subpasta "videos" no Google Drive
 
-  // Resto do código...
-
   // Função para enviar e armazenar múltiplos arquivos no Google Drive
   async function enviarEMarcarArquivos(arquivos) {
     const idsArquivos = [];

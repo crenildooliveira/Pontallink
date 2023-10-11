@@ -8,6 +8,10 @@ const multer = require('multer');
 const session = require('express-session');
 const passport = require('./passport'); // Importe o arquivo passport.js que você criou
 
+const uploadDrive = require('./uploadDrive');
+const uploadDriveInstance = uploadDrive(google);
+
+
 // Configuração do multer para o armazenamento de arquivos
 const storage = multer.memoryStorage(); // Use a memória para armazenar os arquivos, você pode escolher outro local, se desejar
 const upload = multer({ storage: storage });
@@ -134,44 +138,12 @@ app.post('/enviar-formulario', (req, res) => {
 });
 
 // Rota para lidar com o login
-app.post('/login', (req, res) => {
-  const { email, senha } = req.body;
+app.post('/login', passport.authenticate('local', {
+  successRedirect: '/feed/feed.html', // Redireciona em caso de sucesso
+  failureRedirect: '/login.html', // Redireciona em caso de falha
+  failureFlash: true // Ativar mensagens flash para mensagens de erro
+}));
 
-  // Consulta SQL para verificar o email e a senha
-  const query = 'SELECT * FROM usuarios WHERE email = ?';
-  db.query(query, [email], (err, results) => {
-    if (err) {
-      console.error('Erro ao buscar usuário:', err);
-      res.status(500).send('Erro interno do servidor');
-      return;
-    }
-
-    if (results.length === 0) {
-      // Usuário não encontrado, exiba uma mensagem de erro no formulário
-      res.send('Email ou senha incorretos. Tente novamente.');
-      return;
-    }
-
-    const usuario = results[0];
-
-    // Verificar se a senha fornecida corresponde ao hash armazenado
-    bcrypt.compare(senha, usuario.senha, (bcryptErr, senhaCorresponde) => {
-      if (bcryptErr) {
-        console.error('Erro ao verificar senha:', bcryptErr);
-        res.status(500).send('Erro interno do servidor');
-        return;
-      }
-
-      if (senhaCorresponde) {
-        // A senha está correta, você pode redirecionar o usuário para a página principal.
-        res.redirect('/feed/feed.html');
-      } else {
-        // Senha incorreta, exiba uma mensagem de erro no formulário.
-        res.send('Email ou senha incorretos. Tente novamente.');
-      }
-    });
-  });
-});
 
 // Middleware de autenticação personalizado para verificar se o usuário está autenticado
 function verificaAutenticacao(req, res, next) {
@@ -184,15 +156,53 @@ function verificaAutenticacao(req, res, next) {
   }
 }
 
+// Função para enviar e armazenar múltiplos arquivos no Google Drive
+async function enviarEMarcarArquivos(arquivos) {
+  const idsArquivos = [];
+
+  for (const arquivo of arquivos) {
+    if (!arquivo) {
+      // Verifique se o arquivo está definido
+      continue; // Pule para o próximo arquivo
+    }
+
+    let subpastaId;
+
+    if (arquivo.originalname.endsWith('.txt')) {
+      subpastaId = subpastaTextId;
+    } else if (arquivo.originalname.endsWith('.jpg') || arquivo.originalname.endsWith('.png')) {
+      subpastaId = subpastaImagesId;
+    } else if (arquivo.originalname.endsWith('.mp4')) {
+      subpastaId = subpastaVideosId;
+    } else {
+      console.error('Tipo de arquivo não suportado:', arquivo.originalname);
+      continue; // Ignorar arquivos não suportados
+    }
+
+    const fileId = await uploadArquivo(arquivo, subpastaId);
+    if (fileId) {
+      idsArquivos.push(fileId);
+    }
+  }
+
+  return idsArquivos;
+}
+
+
+  // Exporte a função 'enviarEMarcarArquivos'
+  module.exports = enviarEMarcarArquivos;
+
 // Rota para lidar com o envio de publicações (POST) usando Multipart
-app.post('/enviar-publicacao', ensureAuthenticated, upload.fields([{ name: 'texto', maxCount: 1 }, { name: 'imagem', maxCount: 1 }, { name: 'video', maxCount: 1 }]), async (req, res) => {
+app.post('/enviar-publicacao', verificaAutenticacao, upload.fields([{ name: 'texto', maxCount: 1 }, { name: 'imagem', maxCount: 1 }, { name: 'video', maxCount: 1 }]), async (req, res) => {
+
   try {
     // Acessar os dados do corpo da solicitação (texto)
     const { texto } = req.body;
 
     // Acessar os arquivos enviados (imagem e vídeo)
-    const imagem = req.files['imagem'] ? req.files['imagem'][0] : null;
-    const video = req.files['video'] ? req.files['video'][0] : null;
+    const imagem = req.files && req.files['imagem'] ? req.files['imagem'][0] : null;
+    const video = req.files && req.files['video'] ? req.files['video'][0] : null;
+    
 
     // Recupere o ID do usuário autenticado da variável de sessão do Passport.js
     const idusuarios = req.user.idusuarios; // Substitua 'id' pelo nome do campo que armazena o ID do usuário em seu modelo de usuário
@@ -232,56 +242,22 @@ app.post('/enviar-publicacao', ensureAuthenticated, upload.fields([{ name: 'text
       }
     }
 
-      // Função para enviar e armazenar múltiplos arquivos no Google Drive
-      async function enviarEMarcarArquivos(arquivos) {
-      const idsArquivos = [];
-
-      for (const arquivo of arquivos) {
-        if (!arquivo) {
-          // Verifique se o arquivo está definido
-          continue; // Pule para o próximo arquivo
-        }
-
-        let subpastaId;
-
-        if (arquivo.originalname && arquivo.originalname.endsWith('.txt')) {
-          subpastaId = subpastaTextId;
-        } else if (arquivo.originalname && (arquivo.originalname.endsWith('.jpg') || arquivo.originalname.endsWith('.png'))) {
-          subpastaId = subpastaImagesId;
-        } else if (arquivo.originalname && arquivo.originalname.endsWith('.mp4')) {
-          subpastaId = subpastaVideosId;
-        } else {
-          console.error('Tipo de arquivo não suportado:', arquivo.originalname);
-          continue; // Ignorar arquivos não suportados
-        }
-
-        const fileId = await uploadArquivo(arquivo, subpastaId);
-        if (fileId) {
-          idsArquivos.push(fileId);
-        }
-      }
-
-      return idsArquivos;
-    }
-
-    // Exporte a função 'enviarEMarcarArquivos'
-    module.exports = enviarEMarcarArquivos;
-
-
     // Chame a função enviarEMarcarArquivos
-    const arquivos = [imagem, video];
+    const arquivos = [texto, imagem, video];
     const idsArquivos = await enviarEMarcarArquivos(arquivos);
 
     // Suponha que você já tenha os arquivos texto, imagem e vídeo disponíveis
-    const fileIdTexto = idsArquivos[0]; // O primeiro ID é da imagem
-    const fileIdVideo = idsArquivos[1]; // O segundo ID é do vídeo
+    const fileIdTexto = idsArquivos[0]; // O primeiro ID é do texto
+    const fileIdImagem = idsArquivos[1]; // O segundo ID é da imagem
+    const fileIdVideo = idsArquivos[2]; // O terceiro ID é do vídeo
 
-    // Insira a publicação no banco de dados, incluindo os fileIds e o ID do usuário
-    const query = 'INSERT INTO publicacoes (idusuarios, tipo_publicacao, conteudo, file_id_texto, file_id_video) VALUES (?, ?, ?, ?, ?)';
-    db.query(query, [idusuarios, tipo_publicacao, conteudo, fileIdTexto, fileIdVideo], (err, result) => {
+    // Insira a publicação no banco de dados, incluindo os IDs dos arquivos e o ID do usuário
+    const query = 'INSERT INTO publicacoes (idusuarios, file_id_texto, file_id_imagem, file_id_video) VALUES (?, ?, ?, ?)';
+    db.query(query, [idusuarios, fileIdTexto, fileIdImagem, fileIdVideo], (err, result) => {
       if (err) {
         console.error('Erro ao inserir a publicação no banco de dados:', err);
         // Lide com o erro de inserção, se necessário
+        res.status(500).json({ erro: 'Ocorreu um erro ao inserir a publicação no banco de dados' });
         return;
       }
 
@@ -293,6 +269,7 @@ app.post('/enviar-publicacao', ensureAuthenticated, upload.fields([{ name: 'text
     res.status(500).json({ erro: 'Ocorreu um erro ao processar a publicação' });
   }
 });
+
 
 // Iniciar o servidor
 app.listen(port, () => {

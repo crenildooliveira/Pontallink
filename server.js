@@ -6,11 +6,11 @@ const bodyParser = require('body-parser');
 const { google } = require('googleapis');
 const session = require('express-session');
 const passport = require('./passport'); // Importe o arquivo passport.js que você criou
+const multer = require('multer');
+const upload = multer();
 
 // Importe o arquivo uploadDrive.js
-const uploadDrive = require('./uploadDrive');
-const uploadDriveInstance = uploadDrive(google);
-const enviarEMarcarArquivos = uploadDriveInstance.enviarEMarcarArquivos;
+const { enviarEMarcarArquivos, auth } = require('./uploadDrive'); // Obtenha a configuração de autenticação e a função enviarEMarcarArquivos
 
 // Configuração do Express
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -47,18 +47,6 @@ function ensureAuthenticated(req, res, next) {
     res.status(401).json({ erro: 'Usuário não autenticado' });
   }
 }
-
-// Configuração de autenticação com a chave de API do Google Drive
-const auth = new google.auth.GoogleAuth({
-  keyFile: '/json/googleApi.json',
-  scopes: ['https://www.googleapis.com/auth/drive'],
-});
-
-// Inicialize o cliente do Google Drive
-const drive = google.drive({
-  version: 'v3',
-  auth: auth,
-});
 
 // Configuração do banco de dados MySQL
 const mysql = require('mysql');
@@ -153,7 +141,7 @@ app.post('/login', passport.authenticate('local', {
 }));
 
 // Rota para lidar com o envio de publicações (POST)
-app.post('/enviar-publicacao', verificaAutenticacao, async (req, res) => {
+app.post('/enviar-publicacao', upload.fields([{ name: 'imagem', maxCount: 1 }, { name: 'video', maxCount: 1 }]), async (req, res) => {
   try {
     // Acessar os dados do corpo da solicitação (texto)
     const { texto } = req.body;

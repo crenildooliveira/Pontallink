@@ -66,32 +66,36 @@ async function enviarEMarcarArquivos(arquivos) {
       // Verifique se o arquivo está definido
       continue; // Pule para o próximo arquivo
     }
-
+  
     let subpastaId;
-    if (arquivo.originalname) { // Verifique se o nome do arquivo está definido
-      if (arquivo.originalname.endsWith('.txt')) {
+    if (arquivo.mimetype) {
+      if (arquivo.mimetype === 'text/plain' || arquivo.mimetype === 'application/octet-stream') {
+        // Verifique se o arquivo é um arquivo de texto ou se o tipo MIME é indefinido ('application/octet-stream')
         subpastaId = subpastaTextId;
-      } else if (arquivo.originalname.endsWith('.jpg') || arquivo.originalname.endsWith('.png')) {
+      } else if (arquivo.mimetype.startsWith('image/')) {
         subpastaId = subpastaImagesId;
-      } else if (arquivo.originalname.endsWith('.mp4')) {
+      } else if (arquivo.mimetype.startsWith('video/')) {
         subpastaId = subpastaVideosId;
       } else {
         console.error('Tipo de arquivo não suportado:', arquivo.originalname);
         continue; // Ignorar arquivos não suportados
       }
-      console.log('Nome do arquivo:', arquivo.originalname);
-      console.log('Subpasta ID:', subpastaId);
     } else {
-      console.error('Nome de arquivo em branco ou indefinido');
-      continue; // Pule para o próximo arquivo
+      // Se o tipo MIME não estiver definido, assuma que é um arquivo de texto
+      subpastaId = subpastaTextId;
     }
-
+  
+    console.log('Tipo de arquivo:', arquivo.mimetype || 'text/plain (assumido)');
+    console.log('Subpasta ID:', subpastaId);
+  
     const fileId = await uploadArquivo(arquivo, subpastaId);
     if (fileId) {
       idsArquivos.push(fileId);
     }
   }
-
+  
+  
+  
   return idsArquivos;
 }
 

@@ -4,17 +4,13 @@ const port = 3000;
 const bcrypt = require('bcrypt');
 const bodyParser = require('body-parser');
 const { google } = require('googleapis');
-const multer = require('multer');
 const session = require('express-session');
 const passport = require('./passport'); // Importe o arquivo passport.js que você criou
 
+// Importe o arquivo uploadDrive.js
 const uploadDrive = require('./uploadDrive');
 const uploadDriveInstance = uploadDrive(google);
-
-
-// Configuração do multer para o armazenamento de arquivos
-const storage = multer.memoryStorage(); // Use a memória para armazenar os arquivos, você pode escolher outro local, se desejar
-const upload = multer({ storage: storage });
+const enviarEMarcarArquivos = uploadDriveInstance.enviarEMarcarArquivos;
 
 // Configuração do Express
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -137,15 +133,7 @@ app.post('/enviar-formulario', (req, res) => {
   });
 });
 
-// Rota para lidar com o login
-app.post('/login', passport.authenticate('local', {
-  successRedirect: '/feed/feed.html', // Redireciona em caso de sucesso
-  failureRedirect: '/login.html', // Redireciona em caso de falha
-  failureFlash: true // Ativar mensagens flash para mensagens de erro
-}));
-
-
-// Middleware de autenticação personalizado para verificar se o usuário está autenticado
+// Middleware para verificar a autenticação do usuário
 function verificaAutenticacao(req, res, next) {
   if (req.isAuthenticated()) {
     // O usuário está autenticado, siga para a próxima etapa
@@ -156,45 +144,16 @@ function verificaAutenticacao(req, res, next) {
   }
 }
 
-// Função para enviar e armazenar múltiplos arquivos no Google Drive
-async function enviarEMarcarArquivos(arquivos) {
-  const idsArquivos = [];
 
-  for (const arquivo of arquivos) {
-    if (!arquivo) {
-      // Verifique se o arquivo está definido
-      continue; // Pule para o próximo arquivo
-    }
+// Rota para lidar com o login
+app.post('/login', passport.authenticate('local', {
+  successRedirect: '/feed/feed.html', // Redireciona em caso de sucesso
+  failureRedirect: '/login.html', // Redireciona em caso de falha
+  failureFlash: true // Ativar mensagens flash para mensagens de erro
+}));
 
-    let subpastaId;
-
-    if (arquivo.originalname.endsWith('.txt')) {
-      subpastaId = subpastaTextId;
-    } else if (arquivo.originalname.endsWith('.jpg') || arquivo.originalname.endsWith('.png')) {
-      subpastaId = subpastaImagesId;
-    } else if (arquivo.originalname.endsWith('.mp4')) {
-      subpastaId = subpastaVideosId;
-    } else {
-      console.error('Tipo de arquivo não suportado:', arquivo.originalname);
-      continue; // Ignorar arquivos não suportados
-    }
-
-    const fileId = await uploadArquivo(arquivo, subpastaId);
-    if (fileId) {
-      idsArquivos.push(fileId);
-    }
-  }
-
-  return idsArquivos;
-}
-
-
-  // Exporte a função 'enviarEMarcarArquivos'
-  module.exports = enviarEMarcarArquivos;
-
-// Rota para lidar com o envio de publicações (POST) usando Multipart
-app.post('/enviar-publicacao', verificaAutenticacao, upload.fields([{ name: 'texto', maxCount: 1 }, { name: 'imagem', maxCount: 1 }, { name: 'video', maxCount: 1 }]), async (req, res) => {
-
+// Rota para lidar com o envio de publicações (POST)
+app.post('/enviar-publicacao', verificaAutenticacao, async (req, res) => {
   try {
     // Acessar os dados do corpo da solicitação (texto)
     const { texto } = req.body;
@@ -202,49 +161,20 @@ app.post('/enviar-publicacao', verificaAutenticacao, upload.fields([{ name: 'tex
     // Acessar os arquivos enviados (imagem e vídeo)
     const imagem = req.files && req.files['imagem'] ? req.files['imagem'][0] : null;
     const video = req.files && req.files['video'] ? req.files['video'][0] : null;
-    
 
     // Recupere o ID do usuário autenticado da variável de sessão do Passport.js
     const idusuarios = req.user.idusuarios; // Substitua 'id' pelo nome do campo que armazena o ID do usuário em seu modelo de usuário
 
-    // Função para criar um arquivo no Google Drive na pasta especificada
-    async function criarArquivoNoDrive(nomeArquivo, pastaID, mimeType, corpo) {
-      try {
-        const fileMetadata = {
-          name: nomeArquivo,
-          parents: [pastaID],
-        };
+    console.log('Arquivo texto:', texto);
+    console.log('Arquivo imagem:', imagem);
+    console.log('Arquivo vídeo:', video);
 
-        // Crie um fluxo legível (Readable Stream) a partir dos dados do corpo (corpo)
-        const { Readable } = require('stream');
-        const corpoStream = new Readable();
-        corpoStream.push(corpo);
-        corpoStream.push(null);
-
-        const media = {
-          mimeType: mimeType,
-          body: corpoStream,
-        };
-
-        // Certifique-se de que "drive" e "auth" estejam configurados corretamente
-        const driveResponse = await drive.files.create({
-          resource: fileMetadata,
-          media: media,
-          auth: auth,
-        });
-
-        console.log(`Arquivo "${nomeArquivo}" criado com sucesso no Google Drive. ID: ${driveResponse.data.id}`);
-
-        return driveResponse; // Retorne o driveResponse após a criação do arquivo
-      } catch (error) {
-        console.error('Erro ao criar o arquivo no Google Drive:', error);
-        throw error; // Lance o erro para que ele possa ser tratado fora da função, se necessário
-      }
-    }
 
     // Chame a função enviarEMarcarArquivos
     const arquivos = [texto, imagem, video];
     const idsArquivos = await enviarEMarcarArquivos(arquivos);
+
+
 
     // Suponha que você já tenha os arquivos texto, imagem e vídeo disponíveis
     const fileIdTexto = idsArquivos[0]; // O primeiro ID é do texto
@@ -270,8 +200,9 @@ app.post('/enviar-publicacao', verificaAutenticacao, upload.fields([{ name: 'tex
   }
 });
 
-
+        
 // Iniciar o servidor
-app.listen(port, () => {
+  app.listen(port, () => {
   console.log(`Servidor está ouvindo na porta ${port}`);
 });
+        

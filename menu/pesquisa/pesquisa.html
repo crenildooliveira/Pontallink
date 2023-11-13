@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pesquisa em Tempo Real de Usuários</title>
+  <link rel="stylesheet" href="/menu/pesquisa/pesquisa.css">
+</head>
+<body>
+  <h1>Pesquisa em Tempo Real de Usuários</h1>
+  <input type="text" id="searchInput" placeholder="Digite o nome do usuário">
+  <ul id="results"></ul>
+  <!-- Certifique-se de que o valor de idUsuario seja um número válido -->
+  <input type="hidden" id="idUsuario" value="<%= idUsuario || 0 %>">
+  <script src="/menu/pesquisa/pesquisa.js"></script>
+  <!--<script>
+    document.addEventListener('DOMContentLoaded', function () {
+      // Envie uma solicitação GET ao servidor para registrar o ID do usuário após o carregamento da página
+      fetch('/menu/registro-id-usuario')
+        .then(response => response.json())
+        .then(data => {
+          console.log('ID do usuário após o carregamento da pesquisa.html:', data.idUsuario);
+          
+          // Agora você tem o ID do usuário, você pode passá-lo para o seu script pesquisa.js
+          // Inclua uma chamada de função para iniciar o script com o idUsuario
+          iniciarPesquisa(data.idUsuario);
+        })
+        .catch(error => console.error('Erro ao registrar o ID do usuário:', error));
+    });
+  </script>-->
+</body>
+</html>

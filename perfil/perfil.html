@@ -5,8 +5,8 @@
     
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
-    <link rel="stylesheet" href="/feed/feed.css"> <!-- Lembre-se de adicionar o link para o seu arquivo CSS -->
-    <script src="/feed/feed.js"></script>
+    <link rel="stylesheet" href="/perfil/perfil.css"> <!-- Lembre-se de adicionar o link para o seu arquivo CSS -->
+    <script src="/perfil/perfil.js"></script>
     
     <title>Pontallink</title>
 </head>
@@ -19,16 +19,21 @@
                 <img src="/imgs/logo.webp" alt="Logo da Rede Social">
             </div>
             <div id="search">
-                <label for="pesquisa" class="labelInput">Pesquisar:</label>
-                <input type="text" name="pesquisa" id="pesquisa" class="inputUser">
+                <button id="pesquisa-button">
+                    <!--<img src="/imgs/logo.webp" alt="Pesquisa">-->
+                    <a href="/menu/pesquisa/pesquisa.html">Pesquisa</a>
+                </button>
             </div>
 
             <div id="buttons">
                 <div id="notifications">
                     <button id="notifications-button">
-                        <img src="/imgs/notificacoes.png" alt="Notificações">
+                        <!--<img src="/imgs/notificacoes.png" alt="Notificações">-->
+                        <a href="/menu/notificacoes/notificacoes.html">Notificações</a>
                     </button>
                 </div>
+
+                
                 <div id="settings">
                     <button id="settings-button">
                         <img src="/imgs/config.png" alt="Configurações">
@@ -61,6 +66,19 @@
             <span>Direita (aside)</span>
         </aside>
     </div>
+
+    <!-- Janela suspensa de notificações (inicialmente oculta) -->
+    <div id="notification-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <!-- Conteúdo das notificações -->
+            <h2>Notificações</h2>
+            <ul id="notification-list">
+                <!-- Notificações serão preenchidas aqui -->
+            </ul>
+            <button id="close-modal">Fechar</button>
+        </div>
+    </div>
+    
 
 </body>
 </html>

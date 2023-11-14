@@ -1,0 +1,16 @@
+server.js:
+
+"app.post('/enviar-solicitacao-amizade', (req, res)"
+
+Caso "usuario 1" envie solicitação para "usuario 2" irá funcionar.
+Mas, caso, "usuario 1" já tenha enviado solicitacao para "usuario 2",
+e "usuario 2" enviar solicitação para "usuario 1", irá gerar um erro,
+pois já tem uma solicitação entre eles.
+
+O que deveria acontecer ?
+
+Não deve gerar erro quando usuarios enviam solicitação entre si.
+Caso tenham, o primeiro que aceitar já conecta os dois.
+
+OBS: Um usuario atualmente consegue enviar solicitação para ele mesmo,
+isso não deve acontecer.

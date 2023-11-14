@@ -367,6 +367,28 @@ app.post('/enviar-solicitacao-amizade', (req, res) => {
 
 //-----------------------------------------------
 
+
+// Rota para obter solicitações de amizade pendentes do usuário logado
+app.get('/obter-solicitacoes-amizade', (req, res) => {
+  const destinatarioID = req.session.idusuario;
+  const remetenteID = req.body.id_destinatario;
+
+  const sqlConsultarSolicitacoes = 'SELECT * FROM solicitacoes_amizade WHERE id_destinatario = ? AND id_remetente = ? AND status = "pendente"';
+  db.query(sqlConsultarSolicitacoes, [destinatarioID, remetenteID], (err, results) => {
+    if (err) {
+      console.error('Erro na consulta de solicitações de amizade:', err);
+      res.status(500).json({ erro: 'Erro interno do servidor' });
+      return;
+    }
+
+    res.json(results); // Retorna as solicitações pendentes
+  });
+});
+
+
+//-----------------------------------------------
+
+
 // Rota para gerenciar solicitações de amizade
 app.post('/gerenciar-solicitacao-amizade', (req, res) => {
   const { idSolicitacao, acao } = req.body;
@@ -423,23 +445,6 @@ app.post('/responder-solicitacao-amizade', (req, res) => {
 });
 
 //-----------------------------------------------
-
-// Rota para obter solicitações de amizade pendentes do usuário logado
-app.get('/obter-solicitacoes-amizade', (req, res) => {
-  const destinatarioID = req.session.idusuario;
-  const remetenteID = req.body.id_destinatario;
-
-  const sqlConsultarSolicitacoes = 'SELECT * FROM solicitacoes_amizade WHERE id_destinatario = ? AND id_remetente = ? AND status = "pendente"';
-  db.query(sqlConsultarSolicitacoes, [destinatarioID, remetenteID], (err, results) => {
-    if (err) {
-      console.error('Erro na consulta de solicitações de amizade:', err);
-      res.status(500).json({ erro: 'Erro interno do servidor' });
-      return;
-    }
-
-    res.json(results); // Retorna as solicitações pendentes
-  });
-});
 
         
 // Iniciar o servidor

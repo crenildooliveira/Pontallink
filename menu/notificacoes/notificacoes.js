@@ -8,25 +8,25 @@ document.addEventListener('DOMContentLoaded', function () {
       .then((response) => response.json())
       .then((notificacoes) => {
         notificacoesLista.innerHTML = ''; // Limpe a lista de notificações
-
+  
         if (notificacoes.length === 0) {
           notificacoesLista.innerHTML = '<li>Nenhuma notificação de amizade pendente.</li>';
         } else {
           notificacoes.forEach((notificacao) => {
             const listItem = document.createElement('li');
             listItem.innerHTML = `
-              Solicitação de amizade de ${notificacao.nomeRemetente}
-              <button class="aceitar" data-idremetente="${notificacao.idRemetente}">Aceitar</button>
-              <button class="recusar" data-idremetente="${notificacao.idRemetente}">Recusar</button>
+              Solicitação de amizade de ${notificacao.nome_remetente}
+              <button class="aceitar" data-id-sa="${notificacao.id_sa}">Aceitar</button>
+              <button class="recusar" data-id-sa="${notificacao.id_sa}">Recusar</button>
             `;
-
+  
             // Adicione um ouvinte de evento aos botões de aceitar e recusar
             const aceitarBtn = listItem.querySelector('.aceitar');
             const recusarBtn = listItem.querySelector('.recusar');
-
-            aceitarBtn.addEventListener('click', () => responderSolicitacao(notificacao.idRemetente, 'aceitar'));
-            recusarBtn.addEventListener('click', () => responderSolicitacao(notificacao.idRemetente, 'recusar'));
-
+  
+            aceitarBtn.addEventListener('click', () => responderSolicitacao(notificacao.id_sa, 'aceitar'));
+            recusarBtn.addEventListener('click', () => responderSolicitacao(notificacao.id_sa, 'recusar'));
+  
             notificacoesLista.appendChild(listItem);
           });
         }
@@ -35,16 +35,17 @@ document.addEventListener('DOMContentLoaded', function () {
         console.error('Erro ao carregar notificações:', error);
       });
   }
+  
 
   // Função para responder a uma solicitação de amizade
-  function responderSolicitacao(idRemetente, acao) {
+  function responderSolicitacao(id_sa, acao) {
     // Faça uma solicitação AJAX ou fetch para o backend para responder à solicitação
     fetch('/responder-solicitacao-amizade', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ remetenteID: idRemetente, acao }),
+      body: JSON.stringify({ id_sa, acao }),
     })
       .then((response) => response.json())
       .then((data) => {
@@ -56,6 +57,7 @@ document.addEventListener('DOMContentLoaded', function () {
       });
   }
 
-  // Carregue as notificações quando a página for carregada
-  carregarNotificacoes();
-});
+
+    // Carregue as notificações quando a página for carregada
+    carregarNotificacoes();
+  });

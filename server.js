@@ -371,69 +371,59 @@ app.post('/enviar-solicitacao-amizade', (req, res) => {
 // Rota para obter solicitações de amizade pendentes do usuário logado
 app.get('/obter-solicitacoes-amizade', (req, res) => {
   const destinatarioID = req.session.idusuario;
-  const remetenteID = req.body.id_destinatario;
 
-  const sqlConsultarSolicitacoes = 'SELECT * FROM solicitacoes_amizade WHERE id_destinatario = ? AND id_remetente = ? AND status = "pendente"';
-  db.query(sqlConsultarSolicitacoes, [destinatarioID, remetenteID], (err, results) => {
+  const sqlConsultarSolicitacoes = `
+    SELECT
+      sa.*,
+      remetente.nome as nome_remetente,
+      destinatario.nome as nome_destinatario
+    FROM
+      solicitacoes_amizade sa
+    JOIN
+      usuarios remetente ON sa.id_remetente = remetente.idusuarios
+    JOIN
+      usuarios destinatario ON sa.id_destinatario = destinatario.idusuarios
+    WHERE
+      sa.id_destinatario = ? AND sa.status = 'pendente';
+
+  `;
+
+  db.query(sqlConsultarSolicitacoes, [destinatarioID], (err, results) => {
     if (err) {
-      console.error('Erro na consulta de solicitações de amizade:', err);
-      res.status(500).json({ erro: 'Erro interno do servidor' });
+      console.error('Erro na consulta de app.get(/obter-solicitacoes-amizade)', err);
+      res.status(500).json({ erro: 'Erro interno do servidor : (obter-solicitacoes-amizade)' });
       return;
     }
 
-    res.json(results); // Retorna as solicitações pendentes
+    // Adiciona id_sa ao resultado
+    const resultadosComIdSa = results.map((resultado) => {
+      return { id_sa: resultado.id_sa, ...resultado };
+    });
+
+    res.json(resultadosComIdSa); // Retorna as solicitações pendentes
   });
 });
 
 
-//-----------------------------------------------
 
-
-// Rota para gerenciar solicitações de amizade
-app.post('/gerenciar-solicitacao-amizade', (req, res) => {
-  const { idSolicitacao, acao } = req.body;
-  const idUsuario = req.user.id; // ID do usuário logado
-  if (acao === 'aceitar') {
-    const sql = 'UPDATE solicitacoes_amizade SET status = "aceita" WHERE id = ? AND id_destinatario = ?';
-    db.query(sql, [idSolicitacao, idUsuario], (err, result) => {
-      if (err) {
-        console.error('Erro ao aceitar solicitação de amizade:', err);
-        res.status(500).json({ erro: 'Erro ao aceitar solicitação de amizade' });
-        return;
-      }
-      res.json({ mensagem: 'Solicitação de amizade aceita com sucesso' });
-    });
-  } else if (acao === 'recusar') {
-    const sql = 'UPDATE solicitacoes_amizade SET status = "recusada" WHERE id = ? AND id_destinatario = ?';
-    db.query(sql, [idSolicitacao, idUsuario], (err, result) => {
-      if (err) {
-        console.error('Erro ao recusar solicitação de amizade:', err);
-        res.status(500).json({ erro: 'Erro ao recusar solicitação de amizade' });
-        return;
-      }
-      res.json({ mensagem: 'Solicitação de amizade recusada com sucesso' });
-    });
-  }
-});
 
 //-----------------------------------------------
 
 
 // Rota para aceitar ou recusar uma solicitação de amizade
 app.post('/responder-solicitacao-amizade', (req, res) => {
-  const remetenteID = req.session.idusuario;
-  const acao = req.body.acao; // 'aceitar' ou 'recusar'
+  const { id_sa, acao } = req.body; // 'aceitar' ou 'recusar'
 
-  if (!remetenteID || !acao) {
-    res.status(400).json({ erro: 'Parâmetros ausentes' });
+  if (!id_sa || !acao) {
+    res.status(400).json({ erro: 'Parâmetros ausentes: app.post(/responder-solicitacao-amizade)' });
     return;
   }
 
   // Atualizar o status da solicitação com base na ação
   const novoStatus = acao === 'aceitar' ? 'aceita' : 'recusada';
 
-  const sqlAtualizarSolicitacao = 'UPDATE solicitacoes_amizade SET status = ? WHERE id_remetente = ? AND id_destinatario = ?';
-  db.query(sqlAtualizarSolicitacao, [novoStatus, remetenteID, destinatarioID], (err, result) => {
+  const sqlAtualizarSolicitacao = 'UPDATE solicitacoes_amizade SET status = ? WHERE id_sa = ?';
+  db.query(sqlAtualizarSolicitacao, [novoStatus, id_sa], (err, result) => {
     if (err) {
       console.error('Erro ao atualizar a solicitação de amizade:', err);
       res.status(500).json({ erro: 'Erro interno do servidor' });
@@ -444,7 +434,11 @@ app.post('/responder-solicitacao-amizade', (req, res) => {
   });
 });
 
+
 //-----------------------------------------------
+
+
+
 
         
 // Iniciar o servidor

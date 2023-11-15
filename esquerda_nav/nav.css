@@ -1,0 +1,42 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+nav {
+    background-color: red;
+    height: 100vh;
+    width: 100%;
+}
+
+#casa {
+    height: 150vw;
+    margin-right: 5vw;
+    margin-left: 5vw;
+    margin-top: 5vw;
+    background-color: black;
+    border-radius: 5px;
+    position: relative; /* Adicionado para usar posições relativas */
+}
+
+#circulo {
+    background: lightblue;
+    border-radius: 50%;
+    width: 80px;
+    height: 80px;
+    position: absolute;
+    left: 50%; /* Posiciona o círculo 50% à esquerda da div1 */
+    top: 8vw;
+    transform: translateX(-50%); /* Corrige o deslocamento pela metade da largura do círculo */
+}
+
+
+#foto {
+    border-radius: 50%;
+    width: 80px;
+    height: 80px;
+}
+
+
+

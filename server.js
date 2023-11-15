@@ -45,6 +45,9 @@ app.use('/menu/pesquisa', express.static(__dirname + '/menu/pesquisa'));
 // Configurar middleware para servir arquivos estáticos da pasta /publicacao
 app.use('/menu/notificacoes', express.static(__dirname + '/menu/notificacoes'));
 
+// Configurar middleware para servir arquivos estáticos da pasta /esquerda_nav
+app.use('/esquerda_nav', express.static(__dirname + '/esquerda_nav'));
+
 // Configurar o middleware body-parser para analisar os dados JSON enviados no corpo das solicitações
 app.use(bodyParser.json());
 
@@ -117,6 +120,11 @@ app.get('/publicacao', (req, res) => {
 // Rota para a página de notificações (GET)
 app.get('/menu/notificacoes', (req, res) => {
   res.sendFile(__dirname + '/menu/notificacoes/notificacoes.html'); // Substitua 'publicacao.html' pelo caminho correto do seu arquivo HTML de publicação
+});
+
+// Rota para a página de esquerda_nav (GET)
+app.get('/esquerda_nav', (req, res) => {
+  res.sendFile(__dirname + '/esquerda_nav/nav.html'); // Substitua 'publicacao.html' pelo caminho correto do seu arquivo HTML de publicação
 });
 
 //-----------------------------------------------

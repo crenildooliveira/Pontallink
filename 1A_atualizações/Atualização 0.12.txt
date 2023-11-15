@@ -1,0 +1,27 @@
+Atualização 0.12:
+
+Agora "esquerda_nav" precisa apenas ser linkada usando:
+
+<nav>
+    <!-- Conteúdo da navegação -->
+    <iframe src="/esquerda_nav/nav.html" frameborder="0" width="100%" height="100%"></iframe>
+</nav>
+
+Dessa forma, estamos reutilizando o mesmo código de navegação em várias páginas, 
+o que é uma abordagem eficiente e modular.
+
+Nota - O que é uma abordagem eficiente e modular ?
+
+Uma abordagem eficiente e modular refere-se a uma prática de desenvolvimento de software que enfatiza a organização do código de forma a torná-lo mais fácil de entender, manter e reutilizar. Vamos dar uma olhada em cada um desses conceitos:
+
+Eficiência:
+
+Desempenho: O código é projetado para ser executado de maneira rápida e eficiente. Isso pode incluir otimizações de algoritmos, estruturas de dados eficientes e minimização de processos desnecessários.
+Recursos: O código utiliza recursos, como memória e largura de banda, de maneira eficaz, evitando desperdícios.
+
+Modularidade:
+
+Divisão em Módulos: O código é dividido em módulos independentes e interconectados, onde cada módulo possui uma responsabilidade clara e realiza uma função específica.
+Reutilização de Código: Módulos podem ser reutilizados em diferentes partes do sistema ou mesmo em projetos diferentes, reduzindo a duplicação de código.
+Facilidade de Manutenção: As mudanças e atualizações podem ser feitas em módulos específicos sem afetar outras partes do sistema. Isso facilita a manutenção e reduz a chance de introduzir erros ao realizar alterações.
+Ao usar uma abordagem eficiente e modular, você facilita o desenvolvimento, a manutenção e a escalabilidade do seu código. Essas práticas são fundamentais para construir sistemas robustos e que podem evoluir ao longo do tempo com maior facilidade.

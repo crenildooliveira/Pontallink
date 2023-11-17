@@ -92,5 +92,11 @@ aside {
     width: 20%;
 }
 
+#lista_amigos {
+    width: 25%;
+    display: flex;
+    justify-content: center; /* Centraliza horizontalmente */
+    align-items: center; /* Centraliza verticalmente */
+}
 
 

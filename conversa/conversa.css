@@ -1,0 +1,55 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 20px;
+  }
+  
+  #conversa-container {
+    max-width: 600px;
+    margin: 0 auto;
+  }
+  
+  #mensagens {
+    border: 1px solid #ccc;
+    padding: 10px;
+    max-height: 400px;
+    overflow-y: scroll;
+  }
+  
+  #entrada-mensagem {
+    display: flex;
+    margin-top: 10px;
+  }
+  
+  #mensagem-input {
+    flex: 1;
+    padding: 5px;
+    margin-right: 5px;
+  }
+  
+  #enviar-mensagem {
+    background-color: #4caf50;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    cursor: pointer;
+  }
+  
+  #enviar-mensagem:hover {
+    background-color: #45a049;
+  }
+  
+  .minha-mensagem {
+    text-align: right;
+    margin-bottom: 5px;
+  }
+  
+  .outra-mensagem {
+    text-align: left;
+    margin-bottom: 5px;
+  }
+  

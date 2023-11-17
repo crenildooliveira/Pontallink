@@ -10,6 +10,10 @@ const passport = require('./passport'); // Importe o arquivo passport.js que voc
 const multer = require('multer');
 const upload = multer();
 const flash = require('connect-flash');
+const http = require('http');
+const socketIO = require('socket.io');
+const server = http.createServer(app);
+const io = socketIO(server);
 
 // Importe o arquivo uploadDrive.js
 const { enviarEMarcarArquivos, auth } = require('./uploadDrive'); // Obtenha a configuração de autenticação e a função enviarEMarcarArquivos
@@ -47,6 +51,13 @@ app.use('/menu/notificacoes', express.static(__dirname + '/menu/notificacoes'));
 
 // Configurar middleware para servir arquivos estáticos da pasta /esquerda_nav
 app.use('/esquerda_nav', express.static(__dirname + '/esquerda_nav'));
+
+// Configurar middleware para servir arquivos estáticos da pasta /lista_amigos
+app.use('/lista_amigos', express.static(__dirname + '/lista_amigos'));
+
+// Configurar middleware para servir arquivos estáticos da pasta /conversa
+app.use('/conversa', express.static(__dirname + '/conversa'));
+
 
 // Configurar o middleware body-parser para analisar os dados JSON enviados no corpo das solicitações
 app.use(bodyParser.json());
@@ -125,6 +136,16 @@ app.get('/menu/notificacoes', (req, res) => {
 // Rota para a página de esquerda_nav (GET)
 app.get('/esquerda_nav', (req, res) => {
   res.sendFile(__dirname + '/esquerda_nav/nav.html'); // Substitua 'publicacao.html' pelo caminho correto do seu arquivo HTML de publicação
+});
+
+// Rota para a página de lista_amigos (GET)
+app.get('/lista_amigos', (req, res) => {
+  res.sendFile(__dirname + '/lista_amigos/lista_amigos.html'); // Substitua 'publicacao.html' pelo caminho correto do seu arquivo HTML de publicação
+});
+
+// Rota para servir a página da conversa
+app.get('/conversa', (req, res) => {
+res.sendFile(__dirname + '/conversa.html');
 });
 
 //-----------------------------------------------
@@ -206,6 +227,63 @@ app.get('/solicitacoes-amizade', (req, res) => {
     res.json(results); // Retorna todas as solicitações de amizade recebidas
   });
 });
+
+
+//-----------------------------------------------
+
+app.get('/lista-amigos', (req, res) => {
+  const idUsuario = req.session.idusuario;
+
+  const sqlVerificarAmizade = `
+    SELECT 
+      CASE 
+        WHEN id_remetente = ? THEN id_destinatario
+        ELSE id_remetente
+      END AS id_amigo
+    FROM solicitacoes_amizade
+    WHERE 
+      (id_remetente = ? OR id_destinatario = ?) AND
+      status = "aceita" AND
+      id_remetente != id_destinatario
+  `;
+
+  db.query(sqlVerificarAmizade, [idUsuario, idUsuario, idUsuario], (err, results) => {
+    if (err) {
+      console.error('Erro na verificação de amizade - app.get(/lista-amigos)', err);
+      res.status(500).json({ erro: 'Erro interno do servidor - app.get(/lista-amigos)' });
+      return;
+    }
+
+    // Extrai IDs dos amigos da resposta do banco de dados
+    const idsDosAmigos = results.map(result => result.id_amigo);
+
+    if (idsDosAmigos.length === 0) {
+      // Se não houver amigos, enviar uma resposta vazia
+      res.json({ nomesDosAmigos: [] });
+      return;
+    }
+
+    // Consulta os nomes dos amigos usando os IDs
+    const sqlBuscarNomesAmigos = 'SELECT idusuarios, nome FROM usuarios WHERE idusuarios IN (?)';
+
+    db.query(sqlBuscarNomesAmigos, [idsDosAmigos], (err, results) => {
+      if (err) {
+        console.error('Erro ao buscar nomes dos amigos - app.get(/lista-amigos)', err);
+        res.status(500).json({ erro: 'Erro interno do servidor - app.get(/lista-amigos)' });
+        return;
+      }
+
+      // Mapeia os resultados para obter a lista de nomes
+      const nomesDosAmigos = results.map(result => result.nome);
+
+      // Envie a lista de nomes dos amigos para o frontend
+      res.json({ nomesDosAmigos });
+    });
+  });
+});
+
+
+
 
 
 //-----------------------------------------------
@@ -445,6 +523,33 @@ app.post('/responder-solicitacao-amizade', (req, res) => {
 
 //-----------------------------------------------
 
+
+  // Configuração do Socket.IO
+  io.on('connection', (socket) => {
+    console.log('Usuário conectado');
+
+    // Quando uma mensagem é recebida do cliente
+    socket.on('enviarMensagem', (mensagem) => {
+      console.log('Mensagem recebida:', mensagem);
+
+      // Aqui você pode salvar a mensagem no banco de dados, se necessário
+
+      // Enviar a mensagem de volta para o remetente
+      io.to(socket.id).emit('mensagemEnviada', mensagem);
+
+      // Se você quiser enviar a mensagem para o destinatário, você precisa
+      // manter um mapa de sockets para usuários e descobrir o socket do destinatário
+      // io.to(idDoDestinatario).emit('mensagemRecebida', mensagem);
+    });
+
+    // Quando o usuário se desconectar
+    socket.on('disconnect', () => {
+      console.log('Usuário desconectado');
+    });
+  });
+
+
+//-----------------------------------------------
 
 
 

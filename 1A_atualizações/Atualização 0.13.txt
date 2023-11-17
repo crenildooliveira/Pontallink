@@ -1,0 +1,11 @@
+Atualização 0.13: 
+
+ADD pasta conversa e pasta lista_amigos.
+
+Adicionada rota conversa e rota lista-amigos.
+
+Estamos ultilizando Socket.IO para conversa em tempo real.
+
+Rota lista-amigos ultilizavel.
+
+Rota Conversa em Desenvolvimento.

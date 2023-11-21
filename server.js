@@ -15,6 +15,12 @@ const socketIO = require('socket.io');
 const server = http.createServer(app);
 const io = socketIO(server);
 
+
+
+
+
+
+
 // Importe o arquivo uploadDrive.js
 const { enviarEMarcarArquivos, auth } = require('./uploadDrive'); // Obtenha a configuração de autenticação e a função enviarEMarcarArquivos
 
@@ -103,8 +109,14 @@ db.connect((err) => {
   console.log('Conexão com o banco de dados MySQL estabelecida');
 });
 
-// Rota para a página inicial
+// Certifique-se de não ter rotas conflitantes aqui
 app.get('/', (req, res) => {
+  res.send('Hello World!');
+});
+
+
+// Rota para a página inicial
+app.get('/login', (req, res) => {
   res.sendFile(__dirname + '/login/login.html'); // Substitua 'index.html' pelo caminho correto do seu arquivo HTML
 });
 
@@ -141,11 +153,6 @@ app.get('/esquerda_nav', (req, res) => {
 // Rota para a página de lista_amigos (GET)
 app.get('/lista_amigos', (req, res) => {
   res.sendFile(__dirname + '/lista_amigos/lista_amigos.html'); // Substitua 'publicacao.html' pelo caminho correto do seu arquivo HTML de publicação
-});
-
-// Rota para servir a página da conversa
-app.get('/conversa', (req, res) => {
-res.sendFile(__dirname + '/conversa.html');
 });
 
 //-----------------------------------------------
@@ -277,11 +284,26 @@ app.get('/lista-amigos', (req, res) => {
       const nomesDosAmigos = results.map(result => result.nome);
 
       // Envie a lista de nomes dos amigos para o frontend
-      res.json({ nomesDosAmigos });
+      res.json({ nomesDosAmigos, idsDosAmigos, idUsuario });
     });
   });
 });
 
+
+//-----------------------------------------------
+
+
+app.all('/conversa', (req, res) => {
+  // Obtenha os IDs do usuário e do amigo da URL
+  const idUsuario = req.query.idUsuario;
+  const idAmigo = req.query.idAmigo;
+
+  // Renderize a página de conversa passando os IDs, ou faça o que for necessário
+  //res.sendFile(__dirname + '/conversa/conversa.html?idUsuario='+idUsuario+'&idAmigo='+idAmigo);
+  res.sendFile(__dirname + '/conversa/conversa.html');
+
+  console.log("idUsuario: " + idUsuario + " idAmigo: " + idAmigo);
+});
 
 
 
@@ -524,9 +546,21 @@ app.post('/responder-solicitacao-amizade', (req, res) => {
 //-----------------------------------------------
 
 
-  // Configuração do Socket.IO
+
+//-----------------------------------------------
+
+
+  // No início do seu código, antes da configuração do Socket.IO
+  const usuariosSockets = {};
+
+  // Dentro do evento 'connection' do Socket.IO
   io.on('connection', (socket) => {
     console.log('Usuário conectado');
+
+    // Adicionar o usuário e seu socket ao mapa
+    socket.on('registrarUsuario', (idUsuario) => {
+      usuariosSockets[idUsuario] = socket.id;
+    });
 
     // Quando uma mensagem é recebida do cliente
     socket.on('enviarMensagem', (mensagem) => {
@@ -537,21 +571,56 @@ app.post('/responder-solicitacao-amizade', (req, res) => {
       // Enviar a mensagem de volta para o remetente
       io.to(socket.id).emit('mensagemEnviada', mensagem);
 
-      // Se você quiser enviar a mensagem para o destinatário, você precisa
-      // manter um mapa de sockets para usuários e descobrir o socket do destinatário
-      // io.to(idDoDestinatario).emit('mensagemRecebida', mensagem);
+      // Encontrar o socket do destinatário e enviar a mensagem
+      const idDoDestinatario = mensagem.destinatario;
+      const socketDoDestinatario = usuariosSockets[idDoDestinatario];
+
+      if (socketDoDestinatario) {
+        io.to(socketDoDestinatario).emit('mensagemRecebida', mensagem);
+      } else {
+        console.log('Destinatário não encontrado');
+      }
     });
 
     // Quando o usuário se desconectar
     socket.on('disconnect', () => {
       console.log('Usuário desconectado');
+
+      // Remover o usuário do mapa ao se desconectar
+      const idUsuarioDesconectado = Object.keys(usuariosSockets).find(key => usuariosSockets[key] === socket.id);
+      if (idUsuarioDesconectado) {
+        delete usuariosSockets[idUsuarioDesconectado];
+      }
     });
   });
+
 
 
 //-----------------------------------------------
 
 
+// Rota para lidar com o envio de mensagens
+app.post('/enviar-mensagem', (req, res) => {
+  const { remetente, destinatario, conteudo } = req.body; // Desestrutura os dados da mensagem
+
+  // Aqui você deve adicionar a lógica para salvar a mensagem no banco de dados
+  const sqlInserirMensagem = 'INSERT INTO mensagens (id_remetente, id_destinatario, conteudo) VALUES (?, ?, ?)';
+  db.query(sqlInserirMensagem, [remetente, destinatario, conteudo], (err, result) => {
+    if (err) {
+      console.error('Erro ao inserir dados no banco de dados: app.post(/enviar-mensagem', err);
+      res.status(500).send('Erro interno do servidor : app.post(/enviar-mensagem');
+      return;
+    }
+
+    console.log('Mensagem inserida com sucesso no banco de dados');
+  })
+
+  // Responda ao cliente indicando que a mensagem foi recebida (pode ser ajustado conforme necessário)
+  res.json({ mensagemRecebida: true });
+});
+
+
+//-----------------------------------------------
 
         
 // Iniciar o servidor
